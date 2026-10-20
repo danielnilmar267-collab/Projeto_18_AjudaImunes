@@ -2,15 +2,20 @@
 
 # Importa módulo para interagir com o sistema operacional
 
-
+import os
 # Importa a biblioteca Streamlit para criar a interface web interativa
-
+import streamlit as st
 
 # Importa a classe Groq para se conectar à API da plataforma Groq e acessar o LLM
-
+from groq import Groq
 
 # Configura a página do Streamlit com título, ícone, layout e estado inicial da sidebar
-
+st.set_page_config(
+    page_title="AJude IMYUnes AI COder",
+    page_icon="",
+    layout="Wide",
+    initial_sidebar_state="expanded"
+)
 
 # Define um prompt de sistema que descreve as regras e comportamento do assistente de IA
 CUSTOM_PROMPT = """
@@ -27,84 +32,116 @@ REGRAS DE OPERAÇÃO:
 """
 
 # Cria o conteúdo da barra lateral no Streamlit
-
-    
-    # Define o título da barra lateral
+with st.sidebar:
  
-    
+    # Define o título da barra lateral
+    st.title("DSA IA CODER")    
     # Mostra um texto explicativo sobre o assistente
+    st.markdown("Um assitente de IA focada em programacao Python para ajudar iniciantes")
 
     
     # Campo para inserir a chave de API da Groq
-
+groq_api_key = st.text_input(
+    "Insira sua API Key Groq",
+    type="password",
+    help="obtenha sua chave em https://console.groq.com/Keys"
+)
 
     # Adiciona linhas divisórias e explicações extras na barra lateral
+    st.markdown("---")
+    st.markdown("Desenvolvido para auxiliar em suas duvidas de programação com linguangem Python. IA pode cometer erros. Sempre verifique a documetacao")
 
-
-
+    st.markdown("---")
+    st.markdown("Conheça os Cursos Individuais, Formações e programas de Pós-Graduação da DSA;")
 
   
 # Título principal do app
-
+st.title("Ajuda Imunes AI Coder")
 
 # Subtítulo adicional
-
+st.tilte("Assitente Pessoal de PRogramação PYthon")
 
 # Texto auxiliar abaixo do título
-
+st.caption("Faça sua pergunta sobre a linguagem python e obtenha codigo< explicação e referências.")
 
 # Inicializa o histórico de mensagens na sessão, caso ainda não exista
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 
 # Exibe todas as mensagens anteriores armazenadas no estado da sessão
-
+for messages in st.session_state.messages:
+    With st.chat_message(message["role"])
+        st.markdown(message["content"])
 
 # Inicializa a variável do cliente Groq como None
-
+client = None
 
 # Verifica se o usuário forneceu a chave de API da Groq
-
+if groq_api_key:
+      
+    try: 
         # Cria cliente Groq com a chave de API fornecida
+        clent = Groq(api_key = groq_api_key)
 
+    except Exception as e: 
 
         
         # Exibe erro caso haja problema ao inicializar cliente
-
+        st.sidebar.error(f"Erro ao inicializar o clienteGroq: {e}")
+        st.stop()
 
 # Caso não tenha chave, mas já existam mensagens, mostra aviso
+elif st.session_state.messages:
+     st.warning("Por favor, insira sua API Key da Groq na barra lateral para continuar.")
 
 # Captura a entrada do usuário no chat
+if prompt := st.ckat_input("Qual sua duvida sobre Python?"):
 
-    
     # Se não houver cliente válido, mostra aviso e para a execução
-
+if not client:
+    st.warning("Por favor,insira sua API Key da Groq na barra lateral para comecar.")
+    st.stop()
     # Armazena a mensagem do usuário no estado da sessão
-
+st.session_state.messages.append({"role": "user", "content": prompt})
     
     # Exibe a mensagem do usuário no chat
-
+with st.chat_message("user"):
+    st.markdown(prompt)
 
     # Prepara mensagens para enviar à API, incluindo prompt de sistema
+    messages_for_api = [{"role": "system", "content": CUSTOM_PROMPT}]
+    for msg in st.session_state.messages:
 
-        
+
+        messages_for_api.append(msg)
 
 
     # Cria a resposta do assistente no chat
+        with st.chat_message("assistant"):
 
+        with st.spinner("analisando sua pergunta..."): 
+        
+            try:
         
         
                 
                 # Chama a API da Groq para gerar a resposta do assistente
-
-                
+                chat_completion = client.chat.completions.create(
+                    messages = messages_for_api,
+                    model = "openai/gpt-oss-20b", 
+                    temperature = 0.7, 
+                max_tokens ns = 2048,
+                )
+            
                 # Extrai a resposta gerada pela API
-
+                except exception as e: st.error(f"ocorreu um erro ao se comunicar com a api da groq: {e}")
                 
                 # Exibe a resposta no Streamlit
-           
+                st.markdown(dsa_ai_resposta)
                 
                 # Armazena resposta do assistente no estado da sessão
-          
+                st.session_state.messages.append({"role": "assistant", "content": dsa_ai_resposta})
 
             # Caso ocorra erro na comunicação com a API, exibe mensagem de erro
           
